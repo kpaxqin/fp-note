@@ -1,10 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'ramda';
+import X from './X.jsx';
 
-const setFieldOnContext = _.curry(function(context, key, e){
+const getValueFromEvent = function(e){
+  return e.target.value;
+};
+const getValueFromX = function(x){
+  return x.value
+};
+
+const setFieldOnContext = _.curry(function(context, key, value){
   context.setState({
-    [key]: e.target.value
+    [key]: value
   })
 });
 
@@ -26,12 +34,12 @@ class Form extends React.Component {
           <label >name: </label>
           <input
             value={name}
-            onChange={setField('name')}
+            onChange={_.compose(setField('name'), getValueFromEvent)}
             />
           <label >address: </label>
-          <input
+          <X
             value={address}
-            onChange={setField('address')}
+            onChange={_.compose(setField('address'), getValueFromX)}
             />
         </form>
       </div>
