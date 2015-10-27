@@ -85,6 +85,14 @@
 	  context.setState(_defineProperty({}, key, value));
 	});
 	
+	var getFieldSetter = _ramda2['default'].curry(function (valueAdapter, context, name) {
+	  return _ramda2['default'].compose(setFieldOnContext(context, name), valueAdapter);
+	});
+	
+	var setFieldForEvent = getFieldSetter(getValueFromEvent);
+	
+	var setFieldForX = getFieldSetter(getValueFromX);
+	
 	var Form = (function (_React$Component) {
 	  _inherits(Form, _React$Component);
 	
@@ -124,7 +132,7 @@
 	          ),
 	          _react2['default'].createElement('input', {
 	            value: name,
-	            onChange: _ramda2['default'].compose(setField('name'), getValueFromEvent)
+	            onChange: setFieldForEvent(this, 'name')
 	          }),
 	          _react2['default'].createElement(
 	            'label',
@@ -133,7 +141,7 @@
 	          ),
 	          _react2['default'].createElement(_XJsx2['default'], {
 	            value: address,
-	            onChange: _ramda2['default'].compose(setField('address'), getValueFromX)
+	            onChange: setFieldForX(this, 'address')
 	          })
 	        )
 	      );

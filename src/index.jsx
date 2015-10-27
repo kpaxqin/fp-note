@@ -16,6 +16,14 @@ const setFieldOnContext = _.curry(function(context, key, value){
   })
 });
 
+const getFieldSetter= _.curry(function(valueAdapter, context, name){
+  return _.compose(setFieldOnContext(context, name), valueAdapter);
+});
+
+const setFieldForEvent = getFieldSetter(getValueFromEvent);
+
+const setFieldForX = getFieldSetter(getValueFromX);
+
 class Form extends React.Component {
   constructor(props){
     super(props);
@@ -34,16 +42,15 @@ class Form extends React.Component {
           <label >name: </label>
           <input
             value={name}
-            onChange={_.compose(setField('name'), getValueFromEvent)}
+            onChange={setFieldForEvent(this, 'name')}
             />
           <label >address: </label>
           <X
             value={address}
-            onChange={_.compose(setField('address'), getValueFromX)}
+            onChange={setFieldForX(this, 'address')}
             />
         </form>
       </div>
-
     )
   }
 }
