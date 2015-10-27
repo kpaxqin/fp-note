@@ -1,5 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'ramda';
+
+const setFieldOnContext = _.curry(function(context, key, e){
+  context.setState({
+    [key]: e.target.value
+  })
+});
 
 class Form extends React.Component {
   constructor(props){
@@ -9,15 +16,9 @@ class Form extends React.Component {
       address: ''
     }
   }
-  setField(key){
-    return (e)=>{
-      this.setState({
-        [key]: e.target.value
-      })
-    }
-  }
   render(){
     const {name, address} = this.state;
+    const setField = setFieldOnContext(this);
     return (
       <div>
         <h3>Demo for my FP note</h3>
@@ -25,12 +26,12 @@ class Form extends React.Component {
           <label >name: </label>
           <input
             value={name}
-            onChange={this.setField('name').bind(this)}
+            onChange={setField('name')}
             />
           <label >address: </label>
           <input
             value={address}
-            onChange={this.setField('address').bind(this)}
+            onChange={setField('address')}
             />
         </form>
       </div>
