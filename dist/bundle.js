@@ -81,17 +81,21 @@
 	  return x.value;
 	};
 	
-	var setFieldOnContext = _ramda2['default'].curry(function (context, key, value) {
-	  context.setState(_defineProperty({}, key, value));
+	var getKV = _ramda2['default'].curry(function (key, value) {
+	  return _defineProperty({}, key, value);
 	});
 	
-	var getFieldSetter = _ramda2['default'].curry(function (valueAdapter, context, name) {
-	  return _ramda2['default'].compose(setFieldOnContext(context, name), valueAdapter);
+	var getState = _ramda2['default'].curry(function (valueAdapter, name) {
+	  return _ramda2['default'].compose(getKV(name), valueAdapter);
 	});
 	
-	var setFieldForEvent = getFieldSetter(getValueFromEvent);
+	var getStateByEvent = getState(getValueFromEvent);
 	
-	var setFieldForX = getFieldSetter(getValueFromX);
+	var getStateByXEvent = getState(getValueFromX);
+	
+	var setStateBySetter = _ramda2['default'].curry(function (setter, getter, name) {
+	  return _ramda2['default'].compose(setter, getter(name));
+	});
 	
 	var Form = (function (_React$Component) {
 	  _inherits(Form, _React$Component);
@@ -102,18 +106,33 @@
 	    _get(Object.getPrototypeOf(Form.prototype), 'constructor', this).call(this, props);
 	    this.state = {
 	      name: '',
-	      address: ''
+	      address: '',
+	      foo: {
+	        bar: ''
+	      }
 	    };
 	  }
 	
 	  _createClass(Form, [{
+	    key: 'setOnFoo',
+	    value: function setOnFoo(obj) {
+	      this.setState({
+	        foo: _ramda2['default'].merge(this.state.foo, obj)
+	      });
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _state = this.state;
 	      var name = _state.name;
 	      var address = _state.address;
+	      var bar = _state.foo.bar;
 	
-	      var setField = setFieldOnContext(this);
+	      var setState = this.setState.bind(this);
+	
+	      var setStateByEvent = setStateBySetter(setState, getStateByEvent);
+	      var setStateByXEvent = setStateBySetter(setState, getStateByXEvent);
+	      var setFooByEvent = setStateBySetter(this.setOnFoo.bind(this), getStateByEvent);
 	      return _react2['default'].createElement(
 	        'div',
 	        null,
@@ -132,7 +151,7 @@
 	          ),
 	          _react2['default'].createElement('input', {
 	            value: name,
-	            onChange: setFieldForEvent(this, 'name')
+	            onChange: setStateByEvent('name')
 	          }),
 	          _react2['default'].createElement(
 	            'label',
@@ -141,7 +160,16 @@
 	          ),
 	          _react2['default'].createElement(_XJsx2['default'], {
 	            value: address,
-	            onChange: setFieldForX(this, 'address')
+	            onChange: setStateByXEvent('address')
+	          }),
+	          _react2['default'].createElement(
+	            'label',
+	            null,
+	            'foobar: '
+	          ),
+	          _react2['default'].createElement('input', {
+	            value: bar,
+	            onChange: setFooByEvent('bar')
 	          })
 	        )
 	      );

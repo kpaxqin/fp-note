@@ -10,31 +10,47 @@ const getValueFromX = function(x){
   return x.value
 };
 
-const setFieldOnContext = _.curry(function(context, key, value){
-  context.setState({
+const getKV = _.curry(function(key, value){
+  return {
     [key]: value
-  })
+  }
 });
 
-const getFieldSetter= _.curry(function(valueAdapter, context, name){
-  return _.compose(setFieldOnContext(context, name), valueAdapter);
+const getState= _.curry(function(valueAdapter, name){
+  return _.compose(getKV(name), valueAdapter);
 });
 
-const setFieldForEvent = getFieldSetter(getValueFromEvent);
+const getStateByEvent = getState(getValueFromEvent);
 
-const setFieldForX = getFieldSetter(getValueFromX);
+const getStateByXEvent = getState(getValueFromX);
+
+const setStateBySetter = _.curry(function(setter, getter, name){
+  return _.compose(setter, getter(name))
+});
 
 class Form extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       name: '',
-      address: ''
+      address: '',
+      foo: {
+        bar: ''
+      }
     }
   }
+  setOnFoo(obj){
+    this.setState({
+      foo: _.merge(this.state.foo, obj)
+    })
+  }
   render(){
-    const {name, address} = this.state;
-    const setField = setFieldOnContext(this);
+    const {name, address, foo: {bar}} = this.state;
+    const setState = this.setState.bind(this);
+
+    const setStateByEvent = setStateBySetter(setState, getStateByEvent);
+    const setStateByXEvent = setStateBySetter(setState, getStateByXEvent);
+    const setFooByEvent = setStateBySetter(this.setOnFoo.bind(this), getStateByEvent);
     return (
       <div>
         <h3>Demo for my FP note</h3>
@@ -42,12 +58,17 @@ class Form extends React.Component {
           <label >name: </label>
           <input
             value={name}
-            onChange={setFieldForEvent(this, 'name')}
+            onChange={setStateByEvent('name')}
             />
           <label >address: </label>
           <X
             value={address}
-            onChange={setFieldForX(this, 'address')}
+            onChange={setStateByXEvent('address')}
+            />
+          <label >foobar: </label>
+          <input
+            value={bar}
+            onChange={setFooByEvent('bar')}
             />
         </form>
       </div>
