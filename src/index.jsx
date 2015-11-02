@@ -24,7 +24,7 @@ const getStateByEvent = getState(getValueFromEvent);
 
 const getStateByXEvent = getState(getValueFromX);
 
-const setStateBySetter = _.curry(function(setter, getter, name){
+const composeSetState = _.curry(function(setter, getter, name){
   return _.compose(setter, getter(name))
 });
 
@@ -48,9 +48,9 @@ class Form extends React.Component {
     const {name, address, foo: {bar}} = this.state;
     const setState = this.setState.bind(this);
 
-    const setStateByEvent = setStateBySetter(setState, getStateByEvent);
-    const setStateByXEvent = setStateBySetter(setState, getStateByXEvent);
-    const setFooByEvent = setStateBySetter(this.setOnFoo.bind(this), getStateByEvent);
+    const setStateByEvent = composeSetState(setState, getStateByEvent);
+    const setStateByXEvent = composeSetState(setState, getStateByXEvent);
+    const setFooByEvent = composeSetState(this.setOnFoo.bind(this), getStateByEvent);
     return (
       <div>
         <h3>Demo for my FP note</h3>
